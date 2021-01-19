@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import Header from '../../components/Header';
 
@@ -27,7 +27,8 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     async function loadFoods(): Promise<void> {
-      // TODO LOAD FOODS
+      const { data } = await api.get('foods');
+      setFoods(data);
     }
 
     loadFoods();
@@ -37,20 +38,33 @@ const Dashboard: React.FC = () => {
     food: Omit<IFoodPlate, 'id' | 'available'>,
   ): Promise<void> {
     try {
-      // TODO ADD A NEW FOOD PLATE TO THE API
+      const newFoods = await api.post('foods', { ...food, available: true });
+      setFoods(state => [...state, newFoods.data]);
     } catch (err) {
       console.log(err);
     }
   }
 
-  async function handleUpdateFood(
-    food: Omit<IFoodPlate, 'id' | 'available'>,
-  ): Promise<void> {
-    // TODO UPDATE A FOOD PLATE ON THE API
-  }
+  const handleUpdateFood = useCallback(
+    async (food: Omit<IFoodPlate, 'id' | 'available'>) => {
+      const foodUpdated = foods.find(f => f.id === editingFood.id);
+      await api.put(`foods/${editingFood.id}`, {
+        ...foodUpdated,
+        ...food,
+      });
+      const updatedFoods = [
+        ...foods.filter(f => f.id !== editingFood.id),
+        { ...editingFood, ...food },
+      ];
+      setFoods(updatedFoods);
+      setEditingFood({} as IFoodPlate);
+    },
+    [editingFood, foods],
+  );
 
   async function handleDeleteFood(id: number): Promise<void> {
-    // TODO DELETE A FOOD PLATE FROM THE API
+    api.delete(`foods/${id}`);
+    setFoods(state => state.filter(food => food.id !== id));
   }
 
   function toggleModal(): void {
@@ -61,9 +75,13 @@ const Dashboard: React.FC = () => {
     setEditModalOpen(!editModalOpen);
   }
 
-  function handleEditFood(food: IFoodPlate): void {
-    // TODO SET THE CURRENT EDITING FOOD ID IN THE STATE
-  }
+  const handleEditFood = useCallback(
+    (food: IFoodPlate) => {
+      setEditingFood(food);
+      setEditModalOpen(!editModalOpen);
+    },
+    [editModalOpen],
+  );
 
   return (
     <>

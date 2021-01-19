@@ -23,6 +23,14 @@
       "price": "25.90",
       "available": true,
       "image": "https://storage.googleapis.com/golden-wind/bootcamp-gostack/desafio-food/food3.png"
+    },
+    {
+      "image": "https://avatars0.githubusercontent.com/u/65292633?s=460&u=11a58451c592a22533f5d3f6cdf50b79623c7cc5&v=4",
+      "name": "Prato do dia",
+      "price": "6.66",
+      "description": "Humm",
+      "available": true,
+      "id": 4
     }
   ]
 }
